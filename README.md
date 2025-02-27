@@ -5,6 +5,10 @@
 The **"game"** folder should be moved to a desired location. The path can then be configured in Crowbar (ex: X:\utils\game\bin\studiomdl.exe) or utilized manually without Crowbar, depending on preference.
 **NOTE: Moving files from "game" into the game's folder (sfm for example) may cause crashes!**
 
+# Download
+##### [Preview Build](https://github.com/DeadZoneLuna/StudioMDL-CE/archive/refs/heads/main.zip)
+##### [Latest stable build](https://github.com/DeadZoneLuna/StudioMDL-CE/releases/latest)
+
 ## Improvements
 - Allow increase flexes by 10 times or by specified
 - Increased file buffer size to **64 mb** for writing MDL, VTX, VVD.
