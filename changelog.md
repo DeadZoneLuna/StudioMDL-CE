@@ -1,4 +1,43 @@
 -------------------------------------------------------------------------
+## [0.2 Stable] - 27.02.25
+-------------------------------------------------------------------------
+## Features
+- **Added** $defaqscale/-defaqscale **(used ones)** - Increases flexes by **10** times.
+- **Added** $ignoredmxdefaq/-ignoredmxdefaq **(used ones)** - ignore increases flexes for DMX if **$defaqscale/-defaqscale** is used.
+- **Added** fscale <value> **(used within "flexfile")** - Increase flex to the specified value.
+- **Added** $outputbuffersize/-outputbuffersize <size in mb> - Maximum buffer size for writing data to MDL, VVD, VTX files (by default this buffer has been increased to **64 MB**).
+- **Added** $uselegacystripify/-uselegacystripify - Reuse nvtristrip library for generating indices (re-sorting).
+- **Added** $alwayscollapsebyprefix <prefix> - Does the same thing as $alwayscollapse, only collapse bones by prefix in the name.
+- **Added** addcontrollerbyflex <type> <min> <max> **(used within "flexfile")** - Creates flex controllers based on flexes (their name, specified type and specified minimum/maximum).
+- **Added** bindtoonebone **(used within $bodygroup, $model, $body)** - Overrides model weights to the first bone in vertex **(Experimental)**.
+- **Added** -eyeballscale <scale> - Equivalent to the **$eyeballscale** command.
+- **Added** $collisionbindtoonebone/-collisionbindtoonebone **(used ones)** - Overrides collision model weights to the first bone in vertex **(Experimental)**.
+- **Added** $includeanimprefix/-includeanimprefix <prefix> **(used ones)** - Adds a prefix to the end of the model's include name in $includemodel.
+- **Added** $includeprefix/-includeprefix <target> <prefix> - Adds a prefix at the end of the file name that is specified in $include.
+- **Added** renamematbyprefix <prefix> **(used within $bodygroup, $model, $body)** - Adds a prefix to the material name.
+
+## Improvements
+- Allow increase flexes by 10 times or by specified
+- Increased file buffer size to **64 mb** for writing MDL, VTX, VVD.
+- Improved compilation time when generating indices (re-sorting) by replace **nvtristrip** to **meshoptimizer** (nvtristrip can be reuse by using **$uselegacystripify/-uselegacystripify** commands).
+- Large addresses are allowed (LARGEADDRESSAWARE) so that more complex models can be compiled **(e.g. a model with 1 million vertices)**.
+- Changed logic of bones collapse, now when using **$alwayscollapse** - it will be collapsed always, even if this bone has weights on vertices.
+- Slightly changed debugging information when cutting model into multiple models (Which model is in process and how many vertices it has).
+- Increased flex rules operations from **512** to **2048**.
+- **renamemat** now support DMX.
+
+## Fixed
+- It is no longer necessary to specify **$maxverts** (only if you need the wireframe for debugging, it is better to set the limit to **32768** or **21845**).
+- **Fixed** cutting reference into multiple references crash.
+- **Fixed** crashes on indices generation due to file buffer overflow (This buffer can be configured with **$outputbuffersize/-outputbuffersize**).
+- **Fixed** writing materialreplacement in file.
+- **Fixed** empty "**bad command**" error with collision models.
+
+## Known issues
+- **BUG** With some models when scaling (by **$scale**) to some larger values, may causes problems with the weights.
+- **TODO** At the moment cutting a model into several only works with group 0 and model 0, the other groups and models may be missing some parts of the meshes!
+
+-------------------------------------------------------------------------
 ## [0.1 Unstable] (Initial Release) - 12.12.24
 -------------------------------------------------------------------------
 ## Features
