@@ -17,10 +17,19 @@ The **"game"** folder should be moved to a desired location. The path can then b
 - Changed logic of bones collapse, now when using **$alwayscollapse** - it will be collapsed always, even if this bone has weights on vertices.
 - Slightly changed debugging information when cutting model into multiple models (Which model is in process and how many vertices it has).
 - Increased flex rules operations from **512** to **2048**.
+- Flex keys, flex controllers, flex descriptions, and flexes in general have been reworked from a fixed array to a dynamic (65536~ flex verts in total are still engine limit, try avoiding many flex verts to works correctly without bugs & crashes in engine)
+- `-game` is no longer required, by default the model will be compiled next to qc if `gameinfo.txt` is not found.
+- Jiggle bones from a fixed array have been reworked into a dynamic. (To get rid of problems when there are many of them and the compiler starts crashing, since the optimization of the number of jingle bones occurs at the end after qc parsing)
 - **renamemat** now support DMX.
 
 ## Known issues
 - **BUG** With some models when scaling (by **$scale**) to some larger values, may causes problems with the weights.
-- **TODO** At the moment cutting a model into several only works with group 0 and model 0, the other groups and models may be missing some parts of the meshes!
+- **BUG** Sometimes, with a certain number of vertices after segmentation/clamping (not sure), flex vertices cause crashes.
+- **TODO** VTA ("old style" vertex animations) flexes after segmentation/clamping do not work on all vertices (rework "old style" vertex animations required).
+- **TODO** With flexes (only new style?), there may be differences in shading due to some differences in the direction of normals (deep debugging required).
+- **TODO** High memory usage, optimization of some variables from a fixed array to a dynamic is required + get rid of **$outputbuffersize/-outputbuffersize** (so that more things can be done)
+- **TODO** Improve SMD/VTA reading performance (it is very slow)
+- **TODO** Remove some of the limits on the number of materials in references (Make partially dynamic)
+- **TODO** Allow bodygroups to be configured as models (flexes, etc.) for more flexibility
 
 ##### [Full Changelog](./changelog.md)
