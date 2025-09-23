@@ -8,6 +8,8 @@
 - `-game` is no longer required, by default the model will be compiled next to qc if `gameinfo.txt` is not found.
 - Now segmentation/clamping of references ("cutting into multiple models") works correcly (some mesh parts are now no longer missing)
 - Jiggle bones from a fixed array have been reworked into a dynamic. (To get rid of problems when there are many of them and the compiler starts crashing, since the optimization of the number of jingle bones occurs at the end after qc parsing)
+- `$scale` is now supported on procedural bones
+- `$pushd` / `$cd` now work globally, with support for includes and procedural bones (VRD). Added commands to control this behavior: $PUSHDInclude <1|0> to enable/disable for includes, and $PUSHDProcedural <1|0> to enable/disable for procedural bones.
 
 ## Fixes
 - **Fixed** some crashes and bugs when 17+ `$CDMaterials` appear.
@@ -15,6 +17,8 @@
 - **Fixed** flex issues (for the new style, i.e. DMX) after segmentation/clamping, when the compiler could crash after processing them.
 - **Fixed** duplication of flex controllers after segmentation/clamping references. (Reverse engineered the behavior of studiomdl from SFM)
 - **Fixed** some crashes caused by stackoverflow (increased the stack size, this is necessary for some long loops... Valve did the same thing in studiomdl from sfm)
+- **Fixed** regression where `$scale` did nothing to VTA vertices (now they match the model vertices)
+- **Fixed** when attachments could be incorrect when using $scale (absolute, for example)
 
 ## Features
 - **Added** `-OutDir/$OutDir` - The output path where the model will eventually be compiled, either an absolute path or relative to qc.
