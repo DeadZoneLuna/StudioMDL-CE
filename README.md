@@ -24,10 +24,8 @@ The **"game"** folder should be moved to a desired location. The path can then b
 
 ## Known issues
 - **BUG** With some models when scaling (by **$scale**) to some larger values, may causes problems with the weights.
-- **BUG** Sometimes, with a certain number of vertices after segmentation/clamping (not sure), flex vertices cause crashes.
 - **TODO** VTA ("old style" vertex animations) flexes after segmentation/clamping do not work on all vertices (rework "old style" vertex animations required).
-- **TODO** With flexes (only new style?), there may be differences in shading due to some differences in the direction of normals (deep debugging required).
-- **TODO** High memory usage, optimization of some variables from a fixed array to a dynamic is required + get rid of **$outputbuffersize/-outputbuffersize** (so that more things can be done)
+- **TODO** High memory usage, optimization of some variables from a fixed array to a dynamic is required + get rid of **$OutputBufferSize/-OutputBufferSize** (so that more things can be done)
 - **TODO** Improve SMD/VTA reading performance (it is very slow)
 - **TODO** Remove some of the limits on the number of materials in references (Make partially dynamic)
 - **TODO** Allow bodygroups to be configured as models (flexes, etc.) for more flexibility
