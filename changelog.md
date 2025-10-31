@@ -10,19 +10,27 @@
 - Jiggle bones from a fixed array have been reworked into a dynamic. (To get rid of problems when there are many of them and the compiler starts crashing, since the optimization of the number of jingle bones occurs at the end after qc parsing)
 - `$scale` is now supported on procedural bones
 - `$pushd` / `$cd` now work globally, with support for includes and procedural bones (VRD). Added commands to control this behavior: $PUSHDInclude <1|0> to enable/disable for includes, and $PUSHDProcedural <1|0> to enable/disable for procedural bones.
+- `COptimizedModel::BuildStripsRecursive` now reworked and reverted to the default stack size, as stack overflows no longer occur during strip generation
 
 ## Fixes
 - **Fixed** some crashes and bugs when 17+ `$CDMaterials` appear.
 - **Fixed** issues where two separate VTAs caused the compiler to crash.
+- **Fixed** incorrect default flex pose for legacy VTA animations
+- **Fixed** memory leaks in Vertex Animations (VTA/DMX) to fix random crashes
 - **Fixed** flex issues (for the new style, i.e. DMX) after segmentation/clamping, when the compiler could crash after processing them.
 - **Fixed** duplication of flex controllers after segmentation/clamping references. (Reverse engineered the behavior of studiomdl from SFM)
-- **Fixed** some crashes caused by stackoverflow (increased the stack size, this is necessary for some long loops... Valve did the same thing in studiomdl from sfm)
 - **Fixed** regression where `$scale` did nothing to VTA vertices (now they match the model vertices)
+- **Fixed** incorrect delta normal in DMX vertex animations (still needs improvements for more stable results)
 - **Fixed** when attachments could be incorrect when using $scale (absolute, for example)
 
 ## Features
+- **Added** `-MDLOutputBufferSize/$MDLOutputBufferSize` - Maximum buffer size for writing data to MDL file (by default this buffer size is  **64 MB**)
+- **Added** `-ANIOutputBufferSize/$ANIOutputBufferSize` - Maximum buffer size for writing data to ANI file (by default this buffer size is  **64 MB**)
+- **Added** `-VVDOutputBufferSize/$VVDOutputBufferSize` - Maximum buffer size for writing data to VVD file (by default this buffer size is  **64 MB**)
+- **Added** `-VTXOutputBufferSize/$VTXOutputBufferSize` - Maximum buffer size for writing data to VTX file (by default this buffer size is  **64 MB**)
 - **Added** `-OutDir/$OutDir` - The output path where the model will eventually be compiled, either an absolute path or relative to qc.
 - **Added** `-IgnoreEyeballScaling/$IgnoreEyeballScaling` - Ignores eye offsets and radius scaling when using the $scale command.
+- **Added** `-RemapFlexToGlobal/$RemapFlexToGlobal` - Enable remapping of flexes for the new style (DMX) to the global bone space (by default, this feature was previously enabled, but is now disabled to improve flexes quality)
 - **Added** `-ComputeWrinkles/$ComputeWrinkles` - Uses the current combo rules ( i.e. The wrinkleScales, via SetWrinkleScale()) to compute wrinkle delta values.
 - **Added** `-ComputeDeltaNormals/$ComputeDeltaNormals` - Computes new smooth normals for the current mesh and all of its delta states.
 - **Added** `-ComputeNormalsAndWrinkles/$ComputeNormalsAndWrinkles` - Uses **-ComputeDeltaNormals/$ComputeDeltaNormals** and **-ComputeWrinkles/$ComputeWrinkles** at the same time.
@@ -53,10 +61,8 @@ $bodygroup "my_cool_group"
 
 ## Known issues
 - **BUG** With some models when scaling (by **$scale**) to some larger values, may causes problems with the weights.
-- **BUG** Sometimes, with a certain number of vertices after segmentation/clamping (not sure), flex vertices cause crashes.
 - **TODO** VTA ("old style" vertex animations) flexes after segmentation/clamping do not work on all vertices (rework "old style" vertex animations required).
-- **TODO** With flexes (only new style?), there may be differences in shading due to some differences in the direction of normals (deep debugging required).
-- **TODO** High memory usage, optimization of some variables from a fixed array to a dynamic is required + get rid of **$outputbuffersize/-outputbuffersize** (so that more things can be done)
+- **TODO** High memory usage, optimization of some variables from a fixed array to a dynamic is required + get rid of **$OutputBufferSize/-OutputBufferSize** (so that more things can be done)
 - **TODO** Improve SMD/VTA reading performance (it is very slow)
 - **TODO** Remove some of the limits on the number of materials in references (Make partially dynamic)
 - **TODO** Allow bodygroups to be configured as models (flexes, etc.) for more flexibility
@@ -65,16 +71,16 @@ $bodygroup "my_cool_group"
 ## [0.2 Stable] - 27.02.25
 -------------------------------------------------------------------------
 ## Features
-- **Added** `$defaqscale/-defaqscale` **(used ones)** - Increases flexes by **10** times.
-- **Added** `$ignoredmxdefaq/-ignoredmxdefaq` **(used ones)** - ignore increases flexes for DMX if **$defaqscale/-defaqscale** is used.
+- **Added** `$DefaqScale/-DefaqScale` **(used ones)** - Increases flexes by **10** times.
+- **Added** `$IgnoreDMXDefaq/-IgnoreDMXDefaq` **(used ones)** - ignore increases flexes for DMX if **$DefaqScale/-DefaqScale** is used.
 - **Added** `fscale <value>` **(used within "flexfile")** - Increase flex to the specified value.
-- **Added** `$outputbuffersize/-outputbuffersize <size in mb>` - Maximum buffer size for writing data to MDL, VVD, VTX files (by default this buffer has been increased to **64 MB**).
-- **Added** `$uselegacystripify/-uselegacystripify` - Reuse nvtristrip library for generating indices (re-sorting).
-- **Added** `$alwayscollapsebyprefix <prefix>` - Does the same thing as $alwayscollapse, only collapse bones by prefix in the name.
+- **Added** `$OutputBufferSize/-OutputBufferSize <size in mb>` - Maximum buffer size for writing data to MDL, VVD, VTX files (by default this buffer has been increased to **64 MB**).
+- **Added** `$UseLegacyStripify/-UseLegacyStripify` - Reuse nvtristrip library for generating indices (re-sorting).
+- **Added** `$AlwaysCollapseByPrefix <prefix>` - Does the same thing as $alwayscollapse, only collapse bones by prefix in the name.
 - **Added** `addcontrollerbyflex <type> <min> <max>` **(used within "flexfile")** - Creates flex controllers based on flexes (their name, specified type and specified minimum/maximum).
-- **Added** `bindtoonebone` **(used within $bodygroup, $model, $body)** - Overrides model weights to the first bone in vertex **(Experimental)**.
-- **Added** `-eyeballscale <scale>` - Equivalent to the **$eyeballscale** command.
-- **Added** `$collisionbindtoonebone/-collisionbindtoonebone` **(used ones)** - Overrides collision model weights to the first bone in vertex **(Experimental)**.
+- **Added** `BindToOneBone` **(used within $bodygroup, $model, $body)** - Overrides model weights to the first bone in vertex **(Experimental)**.
+- **Added** `-EyeballScale <scale>` - Equivalent to the **$EyeballScale** command.
+- **Added** `$CollisionBindToOneBone/-CollisionBindToOneBone` **(used ones)** - Overrides collision model weights to the first bone in vertex **(Experimental)**.
 - **Added** `$includeanimprefix/-includeanimprefix <prefix>` **(used ones)** - Adds a prefix to the end of the model's include name in $includemodel.
 - **Added** `$includeprefix/-includeprefix <target> <prefix>` - Adds a prefix at the end of the file name that is specified in $include.
 - **Added** `renamematbyprefix <prefix>` **(used within $bodygroup, $model, $body)** - Adds a prefix to the material name.
@@ -82,7 +88,7 @@ $bodygroup "my_cool_group"
 ## Improvements
 - Allow increase flexes by 10 times or by specified
 - Increased file buffer size to **64 mb** for writing MDL, VTX, VVD.
-- Improved compilation time when generating indices (re-sorting) by replace **nvtristrip** to **meshoptimizer** (nvtristrip can be reuse by using **$uselegacystripify/-uselegacystripify** commands).
+- Improved compilation time when generating indices (re-sorting) by replace **nvtristrip** to **meshoptimizer** (nvtristrip can be reuse by using **$UseLegacyStripify/-UseLegacyStripify** commands).
 - Large addresses are allowed (LARGEADDRESSAWARE) so that more complex models can be compiled **(e.g. a model with 1 million vertices)**.
 - Changed logic of bones collapse, now when using **$alwayscollapse** - it will be collapsed always, even if this bone has weights on vertices.
 - Slightly changed debugging information when cutting model into multiple models (Which model is in process and how many vertices it has).
@@ -107,13 +113,13 @@ $bodygroup "my_cool_group"
 - **Added** `$dontdestroy/-dontdestroy` - Prevents deletion of processed files after a crash (Useful only at the stage of successful indices generation).
 - **Added** `$ignoreeyelid/-ignoreeyelid` - Disables automatic eyelid setup for eyeballs while preserving flex rules.
 - **Added** `$addinvstudioflexes/-addinvstudioflexes` - Generates inverted flexes and creates corresponding inverted rules by multiplying their values by -1.
-- **Added** `$zeroflexdecay/-zeroflexdecay` - Removes "decay" effect between flexes. This is particularly useful in Source Filmmaker (SFM) to prevent flexes from resetting to zero during shot transitions.
-- **Added** `-mostlyopaque` - Assigns the **STUDIOHDR_FLAGS_TRANSLUCENT_TWOPASS** model flag to forcing engine process shaders in two passes. This can help resolve transparency issues or improve Ambient Occlusion (AO).
-- **Added** `$allowcollapsevertexbone` - Allows collapse vertex bones (Not collapse only if this bone is used in bonemerge, ik, animation and attachment).
-- **Added** `$hboxignorechild` - Ignores compute child bboxes (may be useful for SFMs when bbox is too large).
-- **Added** `$eyeballscale` - Scales eye position and pupil size based on the value ($scale will be ignored for eyes by this command).
-- **Added** `$ignoreeyeballirisscale` - Ignores pupil scale when $scale or $eyeballscale is used. (Probably useful when using EyeRefract shader and the eye radius is set in the material)
-- **Added** `$ignoredefaultflexkey` - Ignore bakes defaultflex vertexes into model (lods) vertexes.
+- **Added** `$ZeroFlexDecay/-ZeroFlexDecay` - Removes "decay" effect between flexes. This is particularly useful in Source Filmmaker (SFM) to prevent flexes from resetting to zero during shot transitions.
+- **Added** `-MostlyOpaque` - Assigns the **STUDIOHDR_FLAGS_TRANSLUCENT_TWOPASS** model flag to forcing engine process shaders in two passes. This can help resolve transparency issues or improve Ambient Occlusion (AO).
+- **Added** `$AllowCollapseVertexBone` - Allows collapse vertex bones (Not collapse only if this bone is used in bonemerge, ik, animation and attachment).
+- **Added** `$HBoxIgnoreChild` - Ignores compute child bboxes (may be useful for SFMs when bbox is too large).
+- **Added** `$EyeballScale` - Scales eye position and pupil size based on the value ($scale will be ignored for eyes by this command).
+- **Added** `$IgnoreEyeballIrisScale` - Ignores pupil scale when $scale or $EyeballScale is used. (Probably useful when using EyeRefract shader and the eye radius is set in the material)
+- **Added** `$IgnoreDefaultFlexKey` - Ignore bakes defaultflex vertexes into model (lods) vertexes.
 - **Added** `renamemat` **(used within $bodygroup, $model, $body)** - Creates a unique version of the reference and renames the material from source to target. (Useful when we don't need to manually create a copy of the reference file with a different material name)
 - **Added** `invertcontrollers` **(used within "flexfile")** - Works like the "-addinvstudioflexes" argument. It copy original flexes & inverts them with change controller range (-1 1) until toggled off.
 
