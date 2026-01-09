@@ -28,6 +28,9 @@
 - Added manual MDL/ANI output buffer size control (default: `64 MB`). Use `-OutputBufferSize/$OutputBufferSize` (shared) or `-MDLOutputBufferSize/$MDLOutputBufferSize`/`-ANIOutputBufferSize/$ANIOutputBufferSize` (per-file type). (Temporary solution, will be replaced by auto sizing in the near future)
 - Improved compilation time when generating indices (re-sorting) by replace **nvtristrip** to **meshoptimizer** (nvtristrip can be reuse by using `-UseLegacyStripify/$UseLegacyStripify` commands).
 - Flex processing behavior (primarily DMX) has been copied from SFM StudioMDL.
+- Materials limit increased to **128** (MAXSTUDIOSKINS - this limit will be removed in the near future)
+
+![SummoningToFixThisMess](https://media1.tenor.com/m/6T0_YBIw9MkAAAAC/summoning.gif)
 
 ### Special thanks to `Red Menace` and `Smug Bastard` for investigating DMX's flex issues and some compiler issues, this has allowed me to make some improvements in this direction!
 ##### [Full Changelog](./changelog.md)
